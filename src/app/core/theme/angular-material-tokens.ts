@@ -13,6 +13,11 @@ export function configToCssVariables(config: GlobalThemeConfig): string {
   const baseSize = t.baseSize;
   const scale = (mult: number) => `${Math.round(baseSize * mult)}px`;
 
+  // Density: each step compacts component heights by 4px (Material density scale).
+  const densityPx = config.density.value * 4;
+  const dh = (base: number) => `${base + densityPx}px`;
+  const spacingUnit = config.spacing.baseUnit;
+
   const lines: string[] = [
     '/* Colors - Primary */',
     `--mat-sys-primary: ${c.primary};`,
@@ -92,6 +97,22 @@ export function configToCssVariables(config: GlobalThemeConfig): string {
     `--mat-sys-display-small: ${t.regularWeight} ${scale(2.25)}/${t.lineHeight} ${t.fontFamily};`,
     `--mat-sys-display-medium: ${t.regularWeight} ${scale(2.75)}/${t.lineHeight} ${t.fontFamily};`,
     `--mat-sys-display-large: ${t.regularWeight} ${scale(3.5)}/${t.lineHeight} ${t.fontFamily};`,
+    '/* Density (component heights; -4px per density step) */',
+    `--mdc-text-button-container-height: ${dh(40)};`,
+    `--mdc-filled-button-container-height: ${dh(40)};`,
+    `--mdc-outlined-button-container-height: ${dh(40)};`,
+    `--mdc-protected-button-container-height: ${dh(40)};`,
+    `--mat-form-field-container-height: ${dh(56)};`,
+    `--mat-form-field-container-vertical-padding: ${Math.max(4, 16 + densityPx / 2)}px;`,
+    `--mdc-list-list-item-one-line-container-height: ${dh(48)};`,
+    `--mdc-list-list-item-two-line-container-height: ${dh(64)};`,
+    `--mdc-checkbox-state-layer-size: ${dh(40)};`,
+    `--mdc-radio-state-layer-size: ${dh(40)};`,
+    '/* Spacing scale (custom tokens for app layouts) */',
+    `--mat-sys-spacing-1: ${spacingUnit}px;`,
+    `--mat-sys-spacing-2: ${spacingUnit * 2}px;`,
+    `--mat-sys-spacing-3: ${spacingUnit * 3}px;`,
+    `--mat-sys-spacing-4: ${spacingUnit * 4}px;`,
   ];
 
   return lines.join('\n');

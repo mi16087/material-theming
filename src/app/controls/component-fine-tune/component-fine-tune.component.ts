@@ -53,7 +53,7 @@ import { COMPONENT_TOKEN_META, type TokenMeta } from '../../core/theme/component
         align-items: center;
         margin-bottom: 16px;
         padding-bottom: 8px;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid var(--mat-sys-outline-variant, #e0e0e0);
       }
       .panel-header h3 {
         margin: 0;
@@ -62,33 +62,48 @@ import { COMPONENT_TOKEN_META, type TokenMeta } from '../../core/theme/component
       }
       .no-tokens {
         font-size: 13px;
-        color: #666;
+        color: var(--mat-sys-on-surface-variant, #666);
       }
       .token-list {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
       }
       .token-row {
         display: flex;
         flex-direction: column;
         gap: 4px;
+        padding: 6px 8px;
+        margin: 0 -8px;
+        border-radius: 6px;
+        transition: background-color 120ms ease;
+      }
+      .token-row:hover {
+        background: var(--mat-sys-surface-container, #f3edf7);
       }
       .token-row label {
         font-size: 12px;
-        color: #333;
+        color: var(--mat-sys-on-surface-variant, #444);
       }
       .token-inputs {
         display: flex;
         align-items: center;
         gap: 8px;
       }
+      .token-inputs input {
+        border: 1px solid var(--mat-sys-outline-variant, #ccc);
+        border-radius: 6px;
+        background: var(--mat-sys-surface-container-lowest, #fff);
+        color: var(--mat-sys-on-surface, #1c1b1f);
+      }
+      .token-inputs input:focus-visible {
+        outline: 2px solid var(--mat-sys-primary, #6750a4);
+        outline-offset: 1px;
+      }
       .color-in {
         width: 36px;
         height: 36px;
         padding: 2px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
         cursor: pointer;
         background: transparent;
       }
@@ -97,23 +112,17 @@ import { COMPONENT_TOKEN_META, type TokenMeta } from '../../core/theme/component
         font-family: monospace;
         font-size: 12px;
         padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
       }
       .num-in {
         width: 80px;
         padding: 8px;
         font-size: 12px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
       }
       .text-in {
         flex: 1;
         min-width: 100px;
         padding: 8px;
         font-size: 12px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
       }
       .reset-btn {
         margin-top: 16px;

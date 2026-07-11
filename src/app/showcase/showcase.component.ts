@@ -1,4 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, AfterViewInit, ViewChild } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { SelectionModel } from '@angular/cdk/collections';
 import { ThemeConfigService } from '../core/theme/theme-config.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -21,7 +23,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -36,6 +39,11 @@ import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { ShowcaseDialogComponent } from './showcase-dialog/showcase-dialog.component';
 import { ShowcaseBottomSheetComponent } from './showcase-bottom-sheet.component';
+
+export interface TableRow {
+  name: string;
+  value: number;
+}
 
 const SHOWCASE_COMPONENTS: { id: string; label: string }[] = [
   { id: 'button', label: 'Button' },
@@ -70,6 +78,8 @@ const SHOWCASE_COMPONENTS: { id: string; label: string }[] = [
   { id: 'bottom-sheet', label: 'Bottom Sheet' },
 ];
 
+const SCROLLABLE_TAB_LABELS = ['Overview', 'Details', 'Settings', 'History', 'Team', 'Billing', 'Security', 'Integrations'];
+
 @Component({
   selector: 'app-showcase',
   standalone: true,
@@ -95,6 +105,7 @@ const SHOWCASE_COMPONENTS: { id: string; label: string }[] = [
     MatExpansionModule,
     MatStepperModule,
     MatTableModule,
+    MatSortModule,
     MatPaginatorModule,
     MatDividerModule,
     MatIconModule,
@@ -109,24 +120,79 @@ const SHOWCASE_COMPONENTS: { id: string; label: string }[] = [
   templateUrl: './showcase.component.html',
   styleUrl: './showcase.component.scss',
 })
-export class ShowcaseComponent {
+export class ShowcaseComponent implements AfterViewInit {
   readonly theme = inject(ThemeConfigService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly bottomSheet = inject(MatBottomSheet);
+  private readonly doc = inject(DOCUMENT);
+
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatPaginator) tablePaginator!: MatPaginator;
 
   readonly components = SHOWCASE_COMPONENTS;
-  tableData = new MatTableDataSource([{ name: 'Item 1', value: 10 }, { name: 'Item 2', value: 20 }]);
-  displayedColumns = ['name', 'value'];
+  readonly scrollableTabLabels = SCROLLABLE_TAB_LABELS;
+
+  tableData = new MatTableDataSource<TableRow>([
+    { name: 'Alpha', value: 42 },
+    { name: 'Bravo', value: 18 },
+    { name: 'Charlie', value: 73 },
+    { name: 'Delta', value: 9 },
+    { name: 'Echo', value: 55 },
+    { name: 'Foxtrot', value: 31 },
+    { name: 'Golf', value: 64 },
+    { name: 'Hotel', value: 12 },
+  ]);
+  displayedColumns = ['select', 'name', 'value'];
+  tableSelection = new SelectionModel<TableRow>(true, []);
+
   selected = 'option1';
   sliderValue = 50;
   toggleValue = false;
-  stepperStep = 0;
   autocompleteOptions = ['Option A', 'Option B', 'Option C'];
   autocompleteValue = '';
+  requiredFieldValue = '';
+  readonly chipOptions = ['Extra cheese', 'Mushroom', 'Onion'];
+  removableChips: string[] = ['Apple', 'Banana', 'Cherry'];
+
+  ngAfterViewInit(): void {
+    this.tableData.sort = this.sort;
+    this.tableData.paginator = this.tablePaginator;
+  }
+
+  scrollToComponent(id: string): void {
+    this.doc.getElementById('showcase-' + id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   selectComponent(id: string): void {
     this.theme.selectComponent(id);
+  }
+
+  removeChip(fruit: string): void {
+    this.removableChips = this.removableChips.filter((f) => f !== fruit);
+  }
+
+  resetChips(): void {
+    this.removableChips = ['Apple', 'Banana', 'Cherry'];
+  }
+
+  hasOverrides(compId: string): boolean {
+    const ov = this.theme.overrides()[compId];
+    return !!ov && Object.keys(ov).length > 0;
+  }
+
+  isAllTableRowsSelected(): boolean {
+    const numSelected = this.tableSelection.selected.length;
+    const numRows = this.tableData.data.length;
+    return numSelected === numRows;
+  }
+
+  toggleAllTableRows(): void {
+    if (this.isAllTableRowsSelected()) {
+      this.tableSelection.clear();
+    } else {
+      this.tableData.data.forEach((row) => this.tableSelection.select(row));
+    }
   }
 
   openDialog(): void {

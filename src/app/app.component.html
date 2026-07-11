@@ -1,27 +1,91 @@
-<div class="header">
-  <h1 class="app-title">Material Theme Customizer</h1>
+<header class="header">
+  <div class="header-brand">
+    <mat-icon class="brand-icon" aria-hidden="true">palette</mat-icon>
+    <h1 class="app-title">Material Theme Customizer</h1>
+  </div>
   <div class="header-actions">
     @if (theme.selectedComponentId(); as id) {
-      <span class="fine-tune-label">Fine-tune: {{ id }}</span>
+      <span class="fine-tune-label" matTooltip="Press Esc to close fine-tune panel">
+        Fine-tuning: <strong>{{ id }}</strong>
+      </span>
     }
-    <button mat-raised-button color="primary" (click)="theme.downloadCss()" matTooltip="Download theme as CSS file (import in styles or angular.json)">Download CSS</button>
-    <button mat-raised-button (click)="theme.downloadScss()" matTooltip="Download theme as SCSS file (import in styles.scss)">Download SCSS</button>
+    <div class="action-group" role="group" aria-label="Theme actions">
+      <button
+        mat-stroked-button
+        (click)="openImportDialog()"
+        matTooltip="Import theme JSON (Ctrl+I)"
+      >
+        <mat-icon>file_upload</mat-icon>
+        <span class="btn-label">Import</span>
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        [matMenuTriggerFor]="exportMenu"
+        matTooltip="Export current theme as JSON, CSS, or SCSS"
+      >
+        <mat-icon>file_download</mat-icon>
+        <span class="btn-label">Export</span>
+      </button>
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="downloadJson()">
+          <mat-icon>data_object</mat-icon>
+          <span>Download JSON (re-importable)</span>
+        </button>
+        <button mat-menu-item (click)="downloadCss()">
+          <mat-icon>css</mat-icon>
+          <span>Download CSS</span>
+        </button>
+        <button mat-menu-item (click)="downloadScss()">
+          <mat-icon>style</mat-icon>
+          <span>Download SCSS</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="copyJsonToClipboard()">
+          <mat-icon>content_copy</mat-icon>
+          <span>Copy JSON to clipboard</span>
+        </button>
+      </mat-menu>
+      <button
+        mat-icon-button
+        (click)="resetToDefaults()"
+        matTooltip="Reset theme to defaults (undo available)"
+        aria-label="Reset theme to defaults"
+      >
+        <mat-icon>restart_alt</mat-icon>
+      </button>
+    </div>
   </div>
-</div>
+</header>
+
+@if (showWelcome()) {
+  <div class="welcome-banner" role="status">
+    <mat-icon class="welcome-icon" aria-hidden="true">tips_and_updates</mat-icon>
+    <div class="welcome-text">
+      <strong>Quick start:</strong>
+      Tweak colors and tokens in the left panel — the showcase updates live.
+      Use <strong>Import</strong> / <strong>Export</strong> in the header to save or share themes.
+      Click <strong>Fine-tune</strong> on any component for per-component overrides.
+    </div>
+    <button mat-icon-button (click)="dismissWelcome()" aria-label="Dismiss welcome message">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+}
 
 <div class="main-row">
-  <aside class="global-panel">
+  <aside class="global-panel" aria-label="Theme settings">
     <app-global-controls />
   </aside>
 
-  <main class="showcase-wrap">
+  <main class="showcase-wrap" aria-label="Component showcase">
     <div class="theme-showcase">
       <app-showcase />
     </div>
   </main>
 
   @if (theme.selectedComponentId(); as compId) {
-    <aside class="fine-tune-panel">
+    <aside class="fine-tune-panel" aria-label="Component fine-tune panel">
       <app-component-fine-tune [componentId]="compId" />
     </aside>
   }

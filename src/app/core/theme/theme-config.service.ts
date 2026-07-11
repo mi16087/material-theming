@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, effect } from '@angular/core';
 import {
   GlobalThemeConfig,
   ComponentOverrides,
@@ -7,11 +7,42 @@ import {
 import { configToCssVariables } from './angular-material-tokens';
 import { generateThemeCss } from './to-css';
 import { generateThemeScss } from './to-scss';
+import { serializeTheme, parseThemeJson } from './theme-json';
+
+const STORAGE_KEY = 'material-theme-customizer.theme';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeConfigService {
   private readonly configSignal = signal<GlobalThemeConfig>({ ...this.deepClone(DEFAULT_GLOBAL_THEME) });
   private readonly overridesSignal = signal<ComponentOverrides>({});
+
+  constructor() {
+    this.restoreFromStorage();
+    // Persist across sessions; runs whenever config or overrides change.
+    effect(() => {
+      const json = serializeTheme(this.configSignal(), this.overridesSignal());
+      try {
+        localStorage.setItem(STORAGE_KEY, json);
+      } catch {
+        // Storage unavailable (private mode / quota) — persistence is best-effort.
+      }
+    });
+  }
+
+  private restoreFromStorage(): void {
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem(STORAGE_KEY);
+    } catch {
+      return;
+    }
+    if (!stored) return;
+    const parsed = parseThemeJson(stored);
+    if (parsed.ok) {
+      this.configSignal.set(parsed.config);
+      this.overridesSignal.set(parsed.overrides);
+    }
+  }
 
   readonly config = this.configSignal.asReadonly();
   readonly overrides = this.overridesSignal.asReadonly();
@@ -111,6 +142,42 @@ export class ThemeConfigService {
 
   getComponentOverrides(componentId: string): Record<string, string | number> {
     return this.overridesSignal()[componentId] ?? {};
+  }
+
+  /** Reset the whole theme (global config + component overrides) to defaults. */
+  resetToDefaults(): void {
+    this.configSignal.set(this.deepClone(DEFAULT_GLOBAL_THEME));
+    this.overridesSignal.set({});
+  }
+
+  /** Current theme as a versioned, re-importable JSON string. */
+  toJson(): string {
+    return serializeTheme(this.configSignal(), this.overridesSignal());
+  }
+
+  /**
+   * Apply an imported theme. 'replace' swaps everything; 'merge' keeps current
+   * values and only applies the imported config on top (overrides are merged per component).
+   */
+  applyImported(config: GlobalThemeConfig, overrides: ComponentOverrides, mode: 'replace' | 'merge'): void {
+    if (mode === 'replace') {
+      this.configSignal.set(this.deepClone(config));
+      this.overridesSignal.set(this.deepClone(overrides));
+    } else {
+      this.configSignal.update((prev) => this.deepMerge(prev, config));
+      this.overridesSignal.update((prev) => {
+        const merged: ComponentOverrides = { ...prev };
+        for (const [compId, tokens] of Object.entries(overrides)) {
+          merged[compId] = { ...(merged[compId] ?? {}), ...tokens };
+        }
+        return merged;
+      });
+    }
+  }
+
+  /** Generate and download JSON file (re-importable). */
+  downloadJson(): void {
+    this.downloadFile('material-theme.json', this.toJson(), 'application/json');
   }
 
   /** Generate and download CSS file. */
