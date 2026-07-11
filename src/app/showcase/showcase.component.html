@@ -1,0 +1,135 @@
+<div class="showcase-content">
+  <h2 class="showcase-title">Full Component Showcase</h2>
+  <p class="showcase-intro">Change global theme in the left panel to see all components update. Click "Fine-tune" on any component to adjust its local properties.</p>
+
+  @for (comp of components; track comp.id) {
+    <section class="showcase-block" [ngClass]="getOverrideClass(comp.id)">
+      <div class="block-header">
+        <h3>{{ comp.label }}</h3>
+        <button mat-stroked-button (click)="selectComponent(comp.id)">Fine-tune</button>
+      </div>
+      <div class="block-demo">
+        @switch (comp.id) {
+          @case ('button') {
+            <button mat-button>Basic</button>
+            <button mat-raised-button color="primary">Primary</button>
+            <button mat-raised-button color="secondary">Secondary</button>
+            <button mat-stroked-button>Stroked</button>
+          }
+          @case ('card') {
+            <mat-card class="demo-card">
+              <mat-card-header><mat-card-title>Card Title</mat-card-title><mat-card-subtitle>Subtitle</mat-card-subtitle></mat-card-header>
+              <mat-card-content>Card content goes here.</mat-card-content>
+              <mat-card-actions><button mat-button>Action</button></mat-card-actions>
+            </mat-card>
+          }
+          @case ('form-field') {
+            <mat-form-field appearance="outline">
+              <mat-label>Label</mat-label>
+              <input matInput placeholder="Placeholder" />
+            </mat-form-field>
+          }
+          @case ('input') {
+            <mat-form-field appearance="outline">
+              <mat-label>Input</mat-label>
+              <input matInput placeholder="Placeholder" />
+            </mat-form-field>
+          }
+          @case ('chip') {
+            <mat-chip-set><mat-chip>Chip 1</mat-chip><mat-chip>Chip 2</mat-chip></mat-chip-set>
+          }
+          @case ('toolbar') {
+            <mat-toolbar class="demo-toolbar" color="primary">
+              <span>Toolbar</span>
+              <span class="spacer"></span>
+              <button mat-icon-button><mat-icon>menu</mat-icon></button>
+            </mat-toolbar>
+          }
+          @case ('tabs') {
+            <mat-tab-group><mat-tab label="Tab 1">Content 1</mat-tab><mat-tab label="Tab 2">Content 2</mat-tab></mat-tab-group>
+          }
+          @case ('menu') {
+            <button mat-button [matMenuTriggerFor]="menu">Open Menu</button>
+            <mat-menu #menu="matMenu"><button mat-menu-item>Item 1</button><button mat-menu-item>Item 2</button></mat-menu>
+          }
+          @case ('checkbox') {
+            <mat-checkbox>Checkbox</mat-checkbox>
+          }
+          @case ('radio') {
+            <mat-radio-group [(ngModel)]="selected"><mat-radio-button value="option1">Option 1</mat-radio-button><mat-radio-button value="option2">Option 2</mat-radio-button></mat-radio-group>
+          }
+          @case ('select') {
+            <mat-form-field appearance="outline"><mat-label>Select</mat-label><mat-select><mat-option value="a">A</mat-option><mat-option value="b">B</mat-option></mat-select></mat-form-field>
+          }
+          @case ('slider') {
+            <mat-slider min="0" max="100"><input matSliderThumb value="50" /></mat-slider>
+          }
+          @case ('slide-toggle') {
+            <mat-slide-toggle [(ngModel)]="toggleValue">Toggle</mat-slide-toggle>
+          }
+          @case ('progress-bar') {
+            <mat-progress-bar mode="determinate" value="40" class="demo-progress-bar"></mat-progress-bar>
+          }
+          @case ('progress-spinner') {
+            <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+          }
+          @case ('badge') {
+            <button mat-icon-button matBadge="5" matBadgeColor="primary"><mat-icon>notifications</mat-icon></button>
+          }
+          @case ('button-toggle') {
+            <mat-button-toggle-group><mat-button-toggle value="left">Left</mat-button-toggle><mat-button-toggle value="center">Center</mat-button-toggle><mat-button-toggle value="right">Right</mat-button-toggle></mat-button-toggle-group>
+          }
+          @case ('list') {
+            <mat-list><mat-list-item>Item 1</mat-list-item><mat-list-item>Item 2</mat-list-item></mat-list>
+          }
+          @case ('expansion') {
+            <mat-accordion><mat-expansion-panel><mat-expansion-panel-header><mat-panel-title>Panel</mat-panel-title></mat-expansion-panel-header><p>Content</p></mat-expansion-panel></mat-accordion>
+          }
+          @case ('stepper') {
+            <mat-stepper><mat-step label="Step 1">Step 1 content</mat-step><mat-step label="Step 2">Step 2 content</mat-step></mat-stepper>
+          }
+          @case ('table') {
+            <table mat-table [dataSource]="tableData" class="demo-table"><ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Name</th><td mat-cell *matCellDef="let row">{{ row.name }}</td></ng-container><ng-container matColumnDef="value"><th mat-header-cell *matHeaderCellDef>Value</th><td mat-cell *matCellDef="let row">{{ row.value }}</td></ng-container><tr mat-header-row *matHeaderRowDef="displayedColumns"></tr><tr mat-row *matRowDef="let row; columns: displayedColumns"></tr></table>
+          }
+          @case ('paginator') {
+            <mat-paginator [pageSizeOptions]="[5, 10, 25]" [pageSize]="5"></mat-paginator>
+          }
+          @case ('divider') {
+            <mat-divider></mat-divider>
+          }
+          @case ('tooltip') {
+            <button mat-raised-button matTooltip="Tooltip text">Hover me</button>
+          }
+          @case ('dialog') {
+            <button mat-raised-button (click)="openDialog()">Open Dialog</button>
+          }
+          @case ('snack-bar') {
+            <button mat-raised-button (click)="openSnackbar()">Open Snackbar</button>
+          }
+          @case ('sidenav') {
+            <mat-sidenav-container class="demo-sidenav">
+              <mat-sidenav mode="side" opened>Sidenav Panel</mat-sidenav>
+              <mat-sidenav-content>Main Content Area</mat-sidenav-content>
+            </mat-sidenav-container>
+          }
+          @case ('autocomplete') {
+            <mat-form-field appearance="outline"><mat-label>Autocomplete</mat-label><input matInput [matAutocomplete]="auto" [(ngModel)]="autocompleteValue" /><mat-autocomplete #auto="matAutocomplete">
+              @for (o of autocompleteOptions; track o) {
+                <mat-option [value]="o">{{ o }}</mat-option>
+              }
+            </mat-autocomplete></mat-form-field>
+          }
+          @case ('datepicker') {
+            <mat-form-field appearance="outline"><mat-label>Datepicker</mat-label><input matInput [matDatepicker]="picker" /><mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle><mat-datepicker #picker></mat-datepicker></mat-form-field>
+          }
+          @case ('bottom-sheet') {
+            <button mat-raised-button (click)="openBottomSheet()">Open Bottom Sheet</button>
+          }
+          @default {
+            <span class="placeholder">—</span>
+          }
+        }
+      </div>
+    </section>
+  }
+</div>

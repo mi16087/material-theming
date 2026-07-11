@@ -1,0 +1,28 @@
+<div class="header">
+  <h1 class="app-title">Material Theme Customizer</h1>
+  <div class="header-actions">
+    @if (theme.selectedComponentId(); as id) {
+      <span class="fine-tune-label">Fine-tune: {{ id }}</span>
+    }
+    <button mat-raised-button color="primary" (click)="theme.downloadCss()" matTooltip="Download theme as CSS file (import in styles or angular.json)">Download CSS</button>
+    <button mat-raised-button (click)="theme.downloadScss()" matTooltip="Download theme as SCSS file (import in styles.scss)">Download SCSS</button>
+  </div>
+</div>
+
+<div class="main-row">
+  <aside class="global-panel">
+    <app-global-controls />
+  </aside>
+
+  <main class="showcase-wrap">
+    <div class="theme-showcase">
+      <app-showcase />
+    </div>
+  </main>
+
+  @if (theme.selectedComponentId(); as compId) {
+    <aside class="fine-tune-panel">
+      <app-component-fine-tune [componentId]="compId" />
+    </aside>
+  }
+</div>
